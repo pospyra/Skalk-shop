@@ -21,6 +21,7 @@
                                 id
                                 clickUrl
                                 inventoryLevel
+                                moq
                                 prices {
                                     price
                                     currency

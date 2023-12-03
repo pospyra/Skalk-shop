@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Skalk.BLL.Interfaces;
+using Skalk.BLL.IServices;
 using Skalk.BLL.MappingProfile;
 using Skalk.BLL.Services;
-using Skalk.DAL.Entities;
 using Skalk.DAL.Enums;
 using SkalkWebApi.WebApi.Helpers;
 using System.Text;
@@ -19,9 +19,12 @@ namespace SkalkWebApi.ServiceExtentions
             string connectionString = configuration.GetConnectionString("SkalkConnectionDB");
             services.AddDbContext<SkalkContext>(options => options.UseNpgsql(connectionString));
 
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            Encoding.GetEncoding("windows-1251");
 
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IUserService, UserService>();
+            services.AddTransient<ICurrencyService, CurrencyService>();
 
             services.AddScoped<IClaimAccessor, HttpContextClaimsAccessor>();
         }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Skalk.BLL.Interfaces;
+using Skalk.BLL.IServices;
+using Skalk.Common.DTO.Currency;
 using Skalk.Common.DTO.Product;
 using Skalk.Common.GraphQLQuery;
 using Skalk.DAL.SupplyTypes;
@@ -9,12 +11,15 @@ namespace Skalk.BLL.Services
     public class ProductService : IProductService
     {
         private readonly IMemoryCache _cache;
+        private readonly ICurrencyService _currencyService;
+
         private readonly string clientId;
         private readonly string clientSecret;
 
 
-        public ProductService(IMemoryCache cache)
+        public ProductService(IMemoryCache cache, ICurrencyService currencyService)
         {
+            _currencyService = currencyService;
             _cache = cache;
 
             clientId = Environment.GetEnvironmentVariable("NEXAR_CLIENT_ID")
@@ -26,7 +31,6 @@ namespace Skalk.BLL.Services
 
         public async Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName)
         {
-
             if (_cache.TryGetValue("Products", out ICollection<ProductDTO>? cachedProducts))
             {
                 if (cachedProducts is not null)
@@ -48,24 +52,56 @@ namespace Skalk.BLL.Services
                 }
             };
 
-            var result = await supplyClient.RunQueryAsync(request);
+             var result = await supplyClient.RunQueryAsync(request);
 
             var products = MapToProductDTO(result?.Data?.SupSearch?.Results);
 
-            var cacheOptions = new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
-            };
 
             if (products.Any())
             {
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
+                };
+
                 _cache.Set("Products", products, cacheOptions);
             }
-
 
             return products;
         }
 
+        private decimal ConvertionCurrency(string charCode, decimal price)
+        {
+            ICollection<CurrencyDTO> currencies = new List<CurrencyDTO>();
+            if (_cache.TryGetValue("Currencies", out ICollection<CurrencyDTO>? cachedCurrenies))
+            {
+                if (cachedCurrenies is not null)
+                {
+                    currencies =  cachedCurrenies;
+                }
+            }
+            else
+            {
+                currencies = _currencyService.GetCurrenciesAsync().Result;
+
+            }
+
+
+            if (currencies.Any())
+            {
+                var cacheOptions = new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)   
+                };
+
+                _cache.Set("Currencies", currencies, cacheOptions);
+            }
+
+            var currency = currencies.FirstOrDefault(x=>x.CharCode == charCode);
+
+            var convertedPrice = decimal.Parse(currency.VunitRate) * price;
+            return convertedPrice;
+        }
 
         private ICollection<ProductDTO> MapToProductDTO(List<Result>? results)
         {
@@ -75,34 +111,32 @@ namespace Skalk.BLL.Services
             }
 
             var products = results
-                    .Where(res => res?.Part?.Mpn != null)
-                    .SelectMany(res => res.Part.Sellers.SelectMany(seller =>
-                        seller.Offers.Select(offer => new ProductDTO
-                        {
-                            Id = res.Part.Id,
-                            Mpn = res.Part.Mpn,
-                            ManufacturerName = res.Part.Manufacturer?.Name,
-                            CompanyName = seller.Company?.Name,
-                            Offers = offer.Prices
-                                
-                                .Select(price => new OfferDTO
-                                {
-                                    Id = offer.Id,
-                                    ClickUrl = offer.ClickUrl,
-                                    InventoryLevel = offer.InventoryLevel,
-                                    Prices = new List<PriceDTO>
+                .Where(res => res?.Part?.Mpn != null)
+                .SelectMany(res => res.Part.Sellers.SelectMany(seller =>
+                    seller.Offers.GroupBy(offer => offer.Id).Select(groupedOffer => new ProductDTO
+                    {
+                        Id = res.Part.Id,
+                        Mpn = res.Part.Mpn,
+                        ManufacturerName = res.Part.Manufacturer?.Name,
+                        CompanyName = seller.Company?.Name,
+                        Offers = groupedOffer.Select(offer =>
+                            new OfferDTO
+                            {
+                                Id = offer.Id,
+                                ClickUrl = offer.ClickUrl,
+                                InventoryLevel = offer.InventoryLevel,
+                                Prices = offer.Prices
+                                    .Select(price => new PriceDTO
                                     {
-                                        new PriceDTO
-                                        {
-                                            PriceValue = price.PriceValue,
-                                            Currency = price.Currency,
-                                            Quantity = price.Quantity
-                                        }
-                                    }
-                                })
-                                .ToList()
-                        })
-                    )).ToList();
+                                        PriceValue = ConvertionCurrency(price.Currency, price.PriceValue),
+                                        Currency = "RUB",
+                                        Quantity = price.Quantity
+                                    })
+                                    .ToList()
+                            })
+                            .ToList()
+                    })))
+                .ToList();
 
             return products;
         }

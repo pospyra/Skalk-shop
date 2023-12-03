@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Skalk.BLL.Interfaces;
+using Skalk.BLL.IServices;
 using Skalk.Common.DTO.Product;
 
 namespace SkalkWebApi.Controllers
@@ -9,9 +10,11 @@ namespace SkalkWebApi.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductService _productService;
+        private readonly ICurrencyService _currencyService;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, ICurrencyService currencyService)
         {
+            _currencyService = currencyService;
             _productService = productService;
         }
 
@@ -23,5 +26,12 @@ namespace SkalkWebApi.Controllers
 
             return Ok(items);
         }
+        //[HttpGet]
+        //public async Task<ActionResult> GetCurrencyAsync()
+        //{
+        //    var items = await _currencyService.GetCurrenciesAsync();
+
+        //    return Ok(items);
+        //}
     }
 }
