@@ -23,8 +23,10 @@ namespace SkalkWebApi.ServiceExtentions
             Encoding.GetEncoding("windows-1251");
 
             services.AddTransient<IProductService, ProductService>();
-            services.AddTransient<IUserService, UserService>();
             services.AddTransient<ICurrencyService, CurrencyService>();
+
+            services.AddTransient<IShoppingCartService, ShoppingCartService>();
+            services.AddTransient<IUserService, UserService>();
 
             services.AddScoped<IClaimAccessor, HttpContextClaimsAccessor>();
         }
@@ -33,6 +35,7 @@ namespace SkalkWebApi.ServiceExtentions
             services.AddAutoMapper(cfg =>
             {
                 cfg.AddProfile<UserProfile>();
+                cfg.AddProfile<ShoppingCartProfile>();
             });
         }
 

@@ -28,19 +28,27 @@ namespace Skalk.BLL.Services
                 ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_SECRET'");
         }
 
+        public async Task<ProductDTO> GetProductByItemCart(string itemName, int offerId)
+        {
+            var productsList = await GetProductsByFilters(itemName);
+
+            var product = productsList.FirstOrDefault(x => x.Offers.Any(o => o.Id == offerId));
+
+            return product;
+        }
 
         public async Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName)
         {
-            if (_cache.TryGetValue("Products", out ICollection<ProductDTO>? cachedProducts))
-            {
-                if (cachedProducts is not null)
-                {
-                    return cachedProducts;
-                }
-            }
+            //if (_cache.TryGetValue("Products", out ICollection<ProductDTO>? cachedProducts))
+            //{
+            //    if (cachedProducts is not null)
+            //    {
+            //        return cachedProducts;
+            //    }
+            //}
 
             string query = Query.FindPricesQuery;
-            
+
             using var supplyClient = new SupplyClient(clientId, clientSecret);
 
             var request = new Request
@@ -52,20 +60,19 @@ namespace Skalk.BLL.Services
                 }
             };
 
-             var result = await supplyClient.RunQueryAsync(request);
+            var result = await supplyClient.RunQueryAsync(request);
 
-            var products = MapToProductDTO(result?.Data?.SupSearch?.Results);
+            var products = MapToProductDTO(result?.Data.SupSearch.Results.Select(r => r?.Part).ToList());
 
+            //if (products.Any())
+            //{
+            //    var cacheOptions = new MemoryCacheEntryOptions
+            //    {
+            //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
+            //    };
 
-            if (products.Any())
-            {
-                var cacheOptions = new MemoryCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
-                };
-
-                _cache.Set("Products", products, cacheOptions);
-            }
+            //    _cache.Set("Products", products, cacheOptions);
+            //}
 
             return products;
         }
@@ -77,7 +84,7 @@ namespace Skalk.BLL.Services
             {
                 if (cachedCurrenies is not null)
                 {
-                    currencies =  cachedCurrenies;
+                    currencies = cachedCurrenies;
                 }
             }
             else
@@ -86,24 +93,23 @@ namespace Skalk.BLL.Services
 
             }
 
-
             if (currencies.Any())
             {
                 var cacheOptions = new MemoryCacheEntryOptions
                 {
-                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)   
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1)
                 };
 
                 _cache.Set("Currencies", currencies, cacheOptions);
             }
 
-            var currency = currencies.FirstOrDefault(x=>x.CharCode == charCode);
+            var currency = currencies.FirstOrDefault(x => x.CharCode == charCode);
 
             var convertedPrice = decimal.Parse(currency.VunitRate) * price;
             return convertedPrice;
         }
 
-        private ICollection<ProductDTO> MapToProductDTO(List<Result>? results)
+        private ICollection<ProductDTO> MapToProductDTO(List<Part>? results)
         {
             if (results == null)
             {
@@ -111,14 +117,18 @@ namespace Skalk.BLL.Services
             }
 
             var products = results
-                .Where(res => res?.Part?.Mpn != null)
-                .SelectMany(res => res.Part.Sellers.SelectMany(seller =>
+                .Where(res => res?.Mpn != null)
+                .SelectMany(res => res.Sellers.SelectMany(seller =>
                     seller.Offers.GroupBy(offer => offer.Id).Select(groupedOffer => new ProductDTO
                     {
-                        Id = res.Part.Id,
-                        Mpn = res.Part.Mpn,
-                        ManufacturerName = res.Part.Manufacturer?.Name,
-                        CompanyName = seller.Company?.Name,
+                        Id = res.Id,
+                        Mpn = res.Mpn,
+                        ManufacturerName = res.Manufacturer?.Name,
+                        Company = new CompanyDTO
+                        {
+                            Id = seller.Company.Id,
+                            Name = seller.Company.Name,
+                        },
                         Offers = groupedOffer.Select(offer =>
                             new OfferDTO
                             {

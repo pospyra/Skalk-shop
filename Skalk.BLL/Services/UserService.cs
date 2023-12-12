@@ -7,7 +7,6 @@ using Skalk.BLL.Services.Abstract;
 using Skalk.BLL.Services.Helpers;
 using Skalk.Common.DTO.User;
 using Skalk.DAL.Entities;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -44,6 +43,10 @@ namespace Skalk.BLL.Services
             userEntity.Password = SecurityHelper.HashPassword(newUserDTO.Password, salt);
 
             _context.Add(userEntity);
+            await _context.SaveChangesAsync();
+
+            var shoppingCart = new ShoppingCart { UserId = userEntity.Id };
+            _context.ShoppingCarts.Add(shoppingCart);
             await _context.SaveChangesAsync();
             return newUserDTO;
         }

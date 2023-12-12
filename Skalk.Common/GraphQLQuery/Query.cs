@@ -15,6 +15,7 @@
                         }
                         sellers(includeBrokers: false) {
                             company {
+                                id
                                 name
                             }
                             offers {
@@ -35,36 +36,39 @@
         }
     ";
 
-        public static string FindOffersByIdsQuery = @"
-        query FindOffersByIds($itemIds: [ID!]!) {
-          supSearch(filters: { id: $itemIds }) {
-            results {
-              part {
-                id
-                name
-                mpn
-                manufacturer {
-                  name
-                }
-                sellers(includeBrokers: false) {
-                  company {
-                    name
-                  }
-                  offers(filter: { id: { in: $itemIds } }) {
-                    id
-                    clickUrl
-                    inventoryLevel
-                    prices {
-                      price
-                      currency
-                      quantity
+        public static string FindProductByItemCart = @"
+             query MultiMatch($itemName: String!)  {
+              supMultiMatch(
+                queries: [{mpn: $itemName, limit: 1}]
+                options: {filters: {distributor_id: ""2402""}}) {
+                hits
+                parts {
+                        id
+                        name
+                        mpn
+                        manufacturer {
+                            name
+                        }
+                        sellers(includeBrokers: false) {
+                            company {
+                                id
+                                name
+                            }
+                            offers {
+                                id
+                                clickUrl
+                                inventoryLevel
+                                moq
+                                prices {
+                                    price
+                                    currency
+                                    quantity
+                                }
+                            }
+                        }
                     }
-                  }
                 }
               }
-            }
-          }
-        }
     ";
 
 

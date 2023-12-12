@@ -1,12 +1,12 @@
-﻿namespace Skalk.DAL.Entities
+﻿using Skalk.Common.DTO.Product;
+
+namespace Skalk.Common.DTO.ShoppingCart
 {
-    public class ItemShoppingCart
+    public class ItemCartDTO
     {
         public int Id { get; set; }
 
-        public string Mpn { get; set; }
-
-        public int OfferId { get; set; }
+        public ProductDTO? Product { get; set; }
 
         public int Quantity { get; set; }
 
@@ -16,7 +16,5 @@
 
 
         public int ShoppingCartId { get; set; }
-        public ShoppingCart ShoppingCart { get; set; }
     }
 }
-          

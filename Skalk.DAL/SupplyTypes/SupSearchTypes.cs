@@ -21,6 +21,19 @@ namespace Skalk.DAL.SupplyTypes
     {
         [JsonProperty("supSearch")]
         public SupSearch? SupSearch { get; set; }
+
+        [JsonProperty("supMultiMatch")]
+        public List<SupMultiMatch> SupMultiMatch { get; set; }
+
+    }
+
+    public class SupMultiMatch
+    {
+        [JsonProperty("hits")]
+        public int Hits { get; set; }
+
+        [JsonProperty("parts")]
+        public List<Part>? Parts { get; set; }
     }
 
     public class SupSearch
@@ -59,7 +72,7 @@ namespace Skalk.DAL.SupplyTypes
     public class Seller
     {
         [JsonProperty("company")]
-        public Company? Company { get; set; }
+        public Company Company { get; set; }
 
         [JsonProperty("offers")]
         public List<Offer>? Offers { get; set; }
@@ -67,6 +80,9 @@ namespace Skalk.DAL.SupplyTypes
 
     public class Company
     {
+        [JsonProperty("id")]
+        public int? Id { get; set; }
+
         [JsonProperty("name")]
         public string? Name { get; set; }
     }
