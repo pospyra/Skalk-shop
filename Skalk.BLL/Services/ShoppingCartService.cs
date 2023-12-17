@@ -74,7 +74,8 @@ namespace Skalk.BLL.Services
                     Product = product,
                     Quantity = itemShoppingCart.Quantity,
                     Price = FoundPricing(itemShoppingCart.Quantity, product.Offers.SelectMany(offer => offer.Prices).ToList()),
-                    ShoppingCartId = itemShoppingCart.ShoppingCartId
+                    ShoppingCartId = itemShoppingCart.ShoppingCartId,
+
                 };
 
                 itemShoppingCartDTO.TotalAmount = itemShoppingCartDTO.Quantity * itemShoppingCartDTO.Price;
@@ -156,6 +157,21 @@ namespace Skalk.BLL.Services
                 ?? throw new Exception("User doesn't have a cart");
 
             return shoppingCart.Id;
+        }
+
+        public async Task ClearShoppingCart()
+        {
+            var shoppingCartId = await GetShoppingCartIdAsync();
+
+            var itemsToRemove = await _context.ItemShoppingCarts
+                .Where(item => item.ShoppingCartId == shoppingCartId)
+                .ToListAsync();
+
+            if (itemsToRemove.Any())
+            {
+                _context.ItemShoppingCarts.RemoveRange(itemsToRemove);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

@@ -13,5 +13,7 @@ namespace Skalk.DAL.Entities
         public Roles Role { get; set; }
 
         public ShoppingCart ShoppingCart { get; set; }
+        public ICollection<Order> Orders { get; set; } 
     }
+
 }

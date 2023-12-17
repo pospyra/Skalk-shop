@@ -18,7 +18,6 @@ namespace SkalkWebApi.Controllers
             _productService = productService;
         }
 
-
         [HttpGet]
         public async Task<ActionResult<ProductDTO>> GetProductAsync(string itemName)
         {
@@ -26,12 +25,5 @@ namespace SkalkWebApi.Controllers
 
             return Ok(items);
         }
-        //[HttpGet]
-        //public async Task<ActionResult> GetCurrencyAsync()
-        //{
-        //    var items = await _currencyService.GetCurrenciesAsync();
-
-        //    return Ok(items);
-        //}
     }
 }

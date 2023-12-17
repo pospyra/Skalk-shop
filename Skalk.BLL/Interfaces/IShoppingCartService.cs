@@ -7,5 +7,7 @@ namespace Skalk.BLL.Interfaces
         Task AddItemToCartAsync(NewItemCartDTO newItem);
         Task RemoveItemFromCartAsync(int productId);
         Task<ShoppingCartDTO> GetShoppingCartAsync();
+
+        Task ClearShoppingCart();
     }
 }

@@ -6,6 +6,5 @@ namespace Skalk.BLL.Interfaces
     {
         Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName);
         Task<ProductDTO> GetProductByItemCart(string itemName, int offerId);
-
     }
 }

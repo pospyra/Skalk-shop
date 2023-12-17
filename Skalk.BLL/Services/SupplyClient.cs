@@ -19,10 +19,12 @@ namespace Skalk.BLL.Services
         private readonly string clientSecret;
         private readonly HttpClient httpClient;
 
-        public SupplyClient(string clientId, string clientSecret)
+        public SupplyClient()
         {
-            this.clientId = clientId;
-            this.clientSecret = clientSecret;
+            clientId = Environment.GetEnvironmentVariable("NEXAR_CLIENT_ID")
+               ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_ID'");
+            clientSecret = Environment.GetEnvironmentVariable("NEXAR_CLIENT_SECRET")
+                ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_SECRET'");
 
             httpClient = new HttpClient()
             {

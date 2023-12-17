@@ -3,6 +3,7 @@ using Skalk.BLL.Interfaces;
 using Skalk.BLL.IServices;
 using Skalk.Common.DTO.Currency;
 using Skalk.Common.DTO.Product;
+using Skalk.Common.Filters;
 using Skalk.Common.GraphQLQuery;
 using Skalk.DAL.SupplyTypes;
 
@@ -13,19 +14,10 @@ namespace Skalk.BLL.Services
         private readonly IMemoryCache _cache;
         private readonly ICurrencyService _currencyService;
 
-        private readonly string clientId;
-        private readonly string clientSecret;
-
-
         public ProductService(IMemoryCache cache, ICurrencyService currencyService)
         {
             _currencyService = currencyService;
             _cache = cache;
-
-            clientId = Environment.GetEnvironmentVariable("NEXAR_CLIENT_ID")
-                ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_ID'");
-            clientSecret = Environment.GetEnvironmentVariable("NEXAR_CLIENT_SECRET")
-                ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_SECRET'");
         }
 
         public async Task<ProductDTO> GetProductByItemCart(string itemName, int offerId)
@@ -39,17 +31,9 @@ namespace Skalk.BLL.Services
 
         public async Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName)
         {
-            //if (_cache.TryGetValue("Products", out ICollection<ProductDTO>? cachedProducts))
-            //{
-            //    if (cachedProducts is not null)
-            //    {
-            //        return cachedProducts;
-            //    }
-            //}
-
             string query = Query.FindPricesQuery;
 
-            using var supplyClient = new SupplyClient(clientId, clientSecret);
+            using var supplyClient = new SupplyClient();
 
             var request = new Request
             {
@@ -64,17 +48,16 @@ namespace Skalk.BLL.Services
 
             var products = MapToProductDTO(result?.Data.SupSearch.Results.Select(r => r?.Part).ToList());
 
-            //if (products.Any())
-            //{
-            //    var cacheOptions = new MemoryCacheEntryOptions
-            //    {
-            //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
-            //    };
-
-            //    _cache.Set("Products", products, cacheOptions);
-            //}
-
             return products;
+        }
+
+
+        private decimal CalculatePrice(string charCode, decimal price)
+        {
+            const decimal coefficient = 2;
+            var convertedPrice = ConvertionCurrency(charCode, price);
+            var totalPrice = convertedPrice * coefficient;
+            return totalPrice;
         }
 
         private decimal ConvertionCurrency(string charCode, decimal price)
@@ -138,7 +121,7 @@ namespace Skalk.BLL.Services
                                 Prices = offer.Prices
                                     .Select(price => new PriceDTO
                                     {
-                                        PriceValue = ConvertionCurrency(price.Currency, price.PriceValue),
+                                        PriceValue = CalculatePrice(price.Currency, price.PriceValue),
                                         Currency = "RUB",
                                         Quantity = price.Quantity
                                     })
@@ -148,7 +131,9 @@ namespace Skalk.BLL.Services
                     })))
                 .ToList();
 
-            return products;
+            var companyNamesToFilter = ProductDataFilter.CompanyNamesToFilter;
+            var filteredProducts = products.Where(product => companyNamesToFilter.Contains(product?.Company?.Name)).ToList();
+            return filteredProducts;
         }
     }
 }

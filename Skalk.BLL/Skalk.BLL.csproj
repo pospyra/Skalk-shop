@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Skalk.Common\Skalk.Common.csproj" />
     <ProjectReference Include="..\Skalk.DAL\Skalk.DAL.csproj" />
+    <ProjectReference Include="..\Skalk.DocumentGeneration\Skalk.DocumentGeneration.csproj" />
   </ItemGroup>
 
   <ItemGroup>

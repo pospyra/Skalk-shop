@@ -1,8 +1,9 @@
-﻿namespace Skalk.Common.DTO.ShoppingCart
+﻿namespace Skalk.Common.DTO.Order
 {
-    public class NewItemCartDTO
+    public class ItemOrderDTO
     {
-        public string Mpn { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public string? Mpn { get; set; }
 
         public int OfferId { get; set; }
 
@@ -13,5 +14,7 @@
         public decimal Price { get; set; }
 
         public decimal TotalAmount { get; set; }
+
+        public int OrderId { get; set; }
     }
 }

@@ -4,9 +4,11 @@ using System.Text.Json.Serialization;
 namespace Skalk.DAL.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum Roles
+    public enum OrderStatus
     {
-        User,
-        Manager
+        Processing,
+        Sent,
+        Delivered,
+        Received
     }
 }

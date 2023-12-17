@@ -7,6 +7,8 @@ using Skalk.BLL.IServices;
 using Skalk.BLL.MappingProfile;
 using Skalk.BLL.Services;
 using Skalk.DAL.Enums;
+using Skalk.DocumentGeneration.Interfaces;
+using Skalk.DocumentGeneration.Service;
 using SkalkWebApi.WebApi.Helpers;
 using System.Text;
 
@@ -28,6 +30,9 @@ namespace SkalkWebApi.ServiceExtentions
             services.AddTransient<IShoppingCartService, ShoppingCartService>();
             services.AddTransient<IUserService, UserService>();
 
+            services.AddTransient<IOrderService, OrderService>();
+            services.AddTransient<IDocumentGenerationService, DocumentGenerationService>();
+
             services.AddScoped<IClaimAccessor, HttpContextClaimsAccessor>();
         }
         public static void AddAutoMapper(this IServiceCollection services)
@@ -36,6 +41,7 @@ namespace SkalkWebApi.ServiceExtentions
             {
                 cfg.AddProfile<UserProfile>();
                 cfg.AddProfile<ShoppingCartProfile>();
+                cfg.AddProfile<OrderProfile>();
             });
         }
 
