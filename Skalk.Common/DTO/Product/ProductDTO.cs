@@ -17,6 +17,7 @@ namespace Skalk.Common.DTO.Product
         public int? Id { get; set; }
         public string? ClickUrl { get; set; }
         public int InventoryLevel { get; set; }
+        public int? Moq { get; set; }    
         public List<PriceDTO>? Prices { get; set; }
     }
 

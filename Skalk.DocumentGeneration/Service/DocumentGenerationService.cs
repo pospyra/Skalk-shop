@@ -16,7 +16,7 @@ namespace Skalk.DocumentGeneration.Service
 
             // Создание приложения Word
             Application wordApp = new Application();
-            wordApp.Visible = true;
+            wordApp.Visible = false;
 
             // Получение пути к шаблонному файлу
             string projectDirectory = @$"{Directory.GetCurrentDirectory()}\Data\Files";
@@ -48,10 +48,10 @@ namespace Skalk.DocumentGeneration.Service
                 ReplaceTagWithText(doc, "<InfoCustomer>", customerInfo);
                 ReplaceTagWithText(doc, "<NameCount>", itemsCount.ToString());
 
-                ReplaceTagWithText(doc, "<Itogo>", totalSum.ToString("F2"));
-                ReplaceTagWithText(doc, "<NDS>", nds.ToString("F2"));
-                ReplaceTagWithText(doc, "<TotalPrice>", totalSum.ToString("F2"));
-                ReplaceTagWithText(doc, "<sum>", totalSum.ToString("F2"));
+                ReplaceTagWithText(doc, "<Itogo>", totalSum.ToString());
+                ReplaceTagWithText(doc, "<NDS>", nds.ToString());
+                ReplaceTagWithText(doc, "<TotalPrice>", totalSum.ToString());
+                ReplaceTagWithText(doc, "<sum>", totalSum.ToString());
                 ReplaceTagWithText(doc, "<sumText>", totalSumText);
 
                 Table table = doc.Tables[5];
@@ -142,8 +142,9 @@ namespace Skalk.DocumentGeneration.Service
         {
 
             decimal vatAmount = totalAmount * vatRate / (100 + vatRate);
+            decimal roundedvatAmount = Math.Round(vatAmount, 2, MidpointRounding.AwayFromZero);
 
-            return vatAmount;
+            return roundedvatAmount;
         }
     }
 }

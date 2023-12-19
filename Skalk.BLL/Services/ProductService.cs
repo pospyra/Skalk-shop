@@ -31,34 +31,57 @@ namespace Skalk.BLL.Services
 
         public async Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName)
         {
-            string query = Query.FindPricesQuery;
-
-            using var supplyClient = new SupplyClient();
-
-            var request = new Request
+            ICollection<ProductDTO> ProductDTO = new List<ProductDTO>();
+            if (_cache.TryGetValue("ProductDTO", out ICollection<ProductDTO>? cachedCurrenies))
             {
-                Query = query,
-                Variables = new Dictionary<string, object>
+                if (cachedCurrenies is not null)
+                {
+                    ProductDTO = cachedCurrenies;
+                }
+            }
+            else
+            {
+                string query = Query.FindPricesQuery;
+
+                using var supplyClient = new SupplyClient();
+
+                var request = new Request
+                {
+                    Query = query,
+                    Variables = new Dictionary<string, object>
                 {
                     { "itemName", itemName },
                 }
-            };
+                };
 
-            var result = await supplyClient.RunQueryAsync(request);
+                var result = await supplyClient.RunQueryAsync(request);
 
-            var products = MapToProductDTO(result?.Data.SupSearch.Results.Select(r => r?.Part).ToList());
+                ProductDTO = MapToProductDTO(result?.Data.SupSearch.Results.Select(r => r?.Part).ToList());
 
-            return products;
+                if (ProductDTO.Any())
+                {
+                    var cacheOptions = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
+                    };
+
+                    _cache.Set("ProductDTO", ProductDTO, cacheOptions);
+                }
+            }
+            return ProductDTO;
         }
 
 
         private decimal CalculatePrice(string charCode, decimal price)
         {
-            const decimal coefficient = 2;
+            const decimal coefficient = 2;   
             var convertedPrice = ConvertionCurrency(charCode, price);
-            var totalPrice = convertedPrice * coefficient;
-            return totalPrice;
+            var totalPriceBeforeRounding = convertedPrice * coefficient;
+            var roundedTotalPrice = Math.Round(totalPriceBeforeRounding, 2, MidpointRounding.AwayFromZero);
+
+            return roundedTotalPrice;
         }
+
 
         private decimal ConvertionCurrency(string charCode, decimal price)
         {
@@ -118,6 +141,7 @@ namespace Skalk.BLL.Services
                                 Id = offer.Id,
                                 ClickUrl = offer.ClickUrl,
                                 InventoryLevel = offer.InventoryLevel,
+                                Moq = offer.Moq,
                                 Prices = offer.Prices
                                     .Select(price => new PriceDTO
                                     {

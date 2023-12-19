@@ -1,6 +1,5 @@
 ﻿using Skalk.BLL.IServices;
 using Skalk.Common.DTO.Currency;
-using System.Text;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 

@@ -98,6 +98,9 @@ namespace Skalk.DAL.SupplyTypes
         [JsonProperty("inventoryLevel")]
         public int InventoryLevel { get; set; }
 
+        [JsonProperty("moq")]
+        public int? Moq { get; set; }
+
         [JsonProperty("prices")]
         public List<Price>? Prices { get; set; }
     }
