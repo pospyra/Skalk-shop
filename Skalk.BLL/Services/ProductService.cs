@@ -31,16 +31,13 @@ namespace Skalk.BLL.Services
 
         public async Task<ICollection<ProductDTO>> GetProductsByFilters(string itemName)
         {
-            ICollection<ProductDTO> ProductDTO = new List<ProductDTO>();
-            if (_cache.TryGetValue("ProductDTO", out ICollection<ProductDTO>? cachedCurrenies))
+            if (string.IsNullOrEmpty(itemName))
             {
-                if (cachedCurrenies is not null)
-                {
-                    ProductDTO = cachedCurrenies;
-                }
+                throw new ArgumentNullException(nameof(itemName));
             }
-            else
-            {
+
+            ICollection<ProductDTO> ProductDTO = new List<ProductDTO>();
+
                 string query = Query.FindPricesQuery;
 
                 using var supplyClient = new SupplyClient();
@@ -49,9 +46,9 @@ namespace Skalk.BLL.Services
                 {
                     Query = query,
                     Variables = new Dictionary<string, object>
-                {
-                    { "itemName", itemName },
-                }
+                    {
+                        { "itemName", itemName },
+                    }
                 };
 
                 var result = await supplyClient.RunQueryAsync(request);
@@ -67,7 +64,7 @@ namespace Skalk.BLL.Services
 
                     _cache.Set("ProductDTO", ProductDTO, cacheOptions);
                 }
-            }
+
             return ProductDTO;
         }
 
