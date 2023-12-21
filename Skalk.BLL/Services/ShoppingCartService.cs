@@ -38,10 +38,31 @@ namespace Skalk.BLL.Services
             }
 
             var newItem = _mapper.Map<ItemShoppingCart>(newItemDto);
+            newItem.TotalAmount = newItem.Quantity * newItem.Price;
+
             newItem.ShoppingCartId = shoppingCartId;
 
             _context.ItemShoppingCarts.Add(newItem);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<ItemCartDTO> UpdateQuantityItem(UpdateItemCartDTO itemDto)
+        {
+            var item = await _context.ItemShoppingCarts.FirstOrDefaultAsync(x => x.Id == itemDto.Id);
+
+            if (item == null)
+            {
+                throw new NullReferenceException("Item is epsent");
+            }
+
+            item.Quantity = itemDto.Quantity;
+            item.Price = itemDto.Price;
+            item.TotalAmount = item.Quantity * item.Price;
+
+            _context.Update(item);
+            await _context.SaveChangesAsync();
+
+            return _mapper.Map<ItemCartDTO>(item);
         }
 
         public async Task<ShoppingCartDTO> GetShoppingCartAsync()
@@ -53,13 +74,6 @@ namespace Skalk.BLL.Services
                     .FirstOrDefaultAsync(x => x.UserId == currentUserId)
                 ?? throw new Exception("User doesn't have a cart");
 
-            //if (_cache.TryGetValue("Cart", out ShoppingCartDTO? cachedCart))
-            //{
-            //    if (cachedCart is not null)
-            //    {
-            //        return cachedCart;
-            //    }
-            //}
 
             List<ItemCartDTO> itemShoppingCartDTOs = new();
 
@@ -96,17 +110,6 @@ namespace Skalk.BLL.Services
             var shoppingCartDto = _mapper.Map<ShoppingCartDTO>(shoppingCart);
             shoppingCartDto.ItemShoppingCarts = itemShoppingCartDTOs;
             shoppingCartDto.TotalPrice = totalCartPrice;
-
-            //if (shoppingCartDto is not null)
-            //{
-            //    var cacheOptions = new MemoryCacheEntryOptions
-            //    {
-            //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(120)
-            //    };
-
-            //    _cache.Set("Cart", shoppingCartDto, cacheOptions);
-            //}
-
 
             return shoppingCartDto;
         }
@@ -173,5 +176,6 @@ namespace Skalk.BLL.Services
                 await _context.SaveChangesAsync();
             }
         }
+
     }
 }

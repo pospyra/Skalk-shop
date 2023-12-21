@@ -37,5 +37,12 @@ namespace SkalkWebApi.WebApi.Controllers
             var cart = await _shoppingCartService.GetShoppingCartAsync();
             return Ok(cart);
         }
+
+        [HttpPut("quantity-item")]
+        public async Task<ActionResult<ShoppingCartDTO>> UpdateQuantityInCart(UpdateItemCartDTO item)
+        {
+            await _shoppingCartService.UpdateQuantityItem(item);
+            return Ok();
+        }
     }
 }
