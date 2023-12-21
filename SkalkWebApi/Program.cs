@@ -33,6 +33,8 @@ namespace SkalkWebApi
 
             builder.Services.AddCors();
 
+            builder.Services.AddRouting(options => options.LowercaseUrls = true);
+            builder.WebHost.UseUrls("https://*:5050");
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
