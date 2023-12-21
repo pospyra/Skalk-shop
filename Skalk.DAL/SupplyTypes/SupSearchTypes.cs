@@ -5,22 +5,22 @@ namespace Skalk.DAL.SupplyTypes
     public class Request
     {
         [JsonProperty("query")]
-        public string? Query { get; set; }
+        public string Query { get; set; }
 
         [JsonProperty("variables")]
-        public Dictionary<string, object>? Variables { get; set; }
+        public Dictionary<string, object> Variables { get; set; }
     }
 
     public class Response
     {
         [JsonProperty("data")]
-        public Data? Data { get; set; }
+        public Data Data { get; set; }
     }
 
     public class Data
     {
         [JsonProperty("supSearch")]
-        public SupSearch? SupSearch { get; set; }
+        public SupSearch SupSearch { get; set; }
 
         [JsonProperty("supMultiMatch")]
         public List<SupMultiMatch> SupMultiMatch { get; set; }
@@ -33,19 +33,19 @@ namespace Skalk.DAL.SupplyTypes
         public int Hits { get; set; }
 
         [JsonProperty("parts")]
-        public List<Part>? Parts { get; set; }
+        public List<Part> Parts { get; set; }
     }
 
     public class SupSearch
     {
         [JsonProperty("results")]
-        public List<Result>? Results { get; set; }
+        public List<Result> Results { get; set; }
     }
 
     public class Result
     {
         [JsonProperty("part")]
-        public Part? Part { get; set; }
+        public Part Part { get; set; }
     }
 
     public class Part
@@ -54,19 +54,19 @@ namespace Skalk.DAL.SupplyTypes
         public int Id { get; set; }
 
         [JsonProperty("mpn")]
-        public string? Mpn { get; set; }
+        public string Mpn { get; set; }
 
         [JsonProperty("manufacturer")]
-        public Manufacturer? Manufacturer { get; set; }
+        public Manufacturer Manufacturer { get; set; }
 
         [JsonProperty("sellers")]
-        public List<Seller>? Sellers { get; set; }
+        public List<Seller> Sellers { get; set; }
     }
 
     public class Manufacturer
     {
         [JsonProperty("name")]
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 
     public class Seller
@@ -75,16 +75,16 @@ namespace Skalk.DAL.SupplyTypes
         public Company Company { get; set; }
 
         [JsonProperty("offers")]
-        public List<Offer>? Offers { get; set; }
+        public List<Offer> Offers { get; set; }
     }
 
     public class Company
     {
         [JsonProperty("id")]
-        public int? Id { get; set; }
+        public int Id { get; set; }
 
         [JsonProperty("name")]
-        public string? Name { get; set; }
+        public string Name { get; set; }
     }
 
     public class Offer
@@ -93,7 +93,7 @@ namespace Skalk.DAL.SupplyTypes
         public int? Id { get; set; }
 
         [JsonProperty("clickUrl")]
-        public string? ClickUrl { get; set; }
+        public string ClickUrl { get; set; }
 
         [JsonProperty("inventoryLevel")]
         public int InventoryLevel { get; set; }
@@ -102,7 +102,7 @@ namespace Skalk.DAL.SupplyTypes
         public int? Moq { get; set; }
 
         [JsonProperty("prices")]
-        public List<Price>? Prices { get; set; }
+        public List<Price> Prices { get; set; }
     }
 
     public class Price
@@ -111,7 +111,7 @@ namespace Skalk.DAL.SupplyTypes
         public decimal PriceValue { get; set; }
 
         [JsonProperty("currency")]
-        public string? Currency { get; set; }
+        public string Currency { get; set; }
 
         [JsonProperty("quantity")]
         public int Quantity { get; set; }

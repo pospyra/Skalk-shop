@@ -10,12 +10,12 @@ namespace Skalk.Common.DTO.Currency
         public int Id { get; set; }
 
         [XmlAttribute("name")]
-        public string Name { get; set; } 
+        public string Name { get; set; } = String.Empty;
 
         [XmlAttribute("Date")]
-        public string Date { get; set; }
+        public string Date { get; set; } = String.Empty;
 
         [XmlElement("Valute")]
-        public List<CurrencyDTO> Valutes { get; set; }
+        public List<CurrencyDTO> Valutes { get; set; } = new List<CurrencyDTO>();
     }
 }
