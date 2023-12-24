@@ -37,7 +37,7 @@ namespace SkalkWebApi
             builder.WebHost.UseUrls("https://*:5050");
             var app = builder.Build();
 
-            app.UseSkalkCoreontext();
+          //  app.UseSkalkCoreontext();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
