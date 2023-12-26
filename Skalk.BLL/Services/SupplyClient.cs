@@ -34,11 +34,20 @@ namespace Skalk.BLL.Services
 
         public async Task<Response> RunQueryAsync(Request request)
         {
-            // for another way of running GraphQL queries, see the related demo at:
-            // https://github.com/NexarDeveloper/nexar-templates/tree/main/nexar-console-supply
             await EnsureValidTokenAsync();
             string requestString = JsonConvert.SerializeObject(request);
-            HttpResponseMessage httResponse = await httpClient.PostAsync(httpClient.BaseAddress, new StringContent(requestString, Encoding.UTF8, "application/json"));
+
+            // Создаем HttpRequestMessage вручную, добавляем заголовок "User-Agent"
+            var httpRequestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = httpClient.BaseAddress,
+                Content = new StringContent(requestString, Encoding.UTF8, "application/json")
+            };
+
+            httpRequestMessage.Headers.Add("User-Agent", "User-Agent-Here");
+
+            HttpResponseMessage httResponse = await httpClient.SendAsync(httpRequestMessage);
             httResponse.EnsureSuccessStatusCode();
             string responseString = await httResponse.Content.ReadAsStringAsync();
             Response response = JsonConvert.DeserializeObject<Response>(responseString);
