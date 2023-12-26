@@ -21,9 +21,9 @@ namespace Skalk.BLL.Services
 
         public SupplyClient()
         {
-            clientId = "f3a998a6-8b83-4156-adb3-d2509ffebea4"
+            clientId = "6edc75af-6da6-40b7-8e7a-b73ea6923bf5"
                ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_ID'");
-            clientSecret = "C1YYjOhYj7fzuHDVPTTeOpHOR74e8nbvWi6p"
+            clientSecret = "MgBzv4zhcO0Ucw_J4zQI-tDpiy9E7ZPrK4iK"
                 ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_SECRET'");
 
             httpClient = new HttpClient()
