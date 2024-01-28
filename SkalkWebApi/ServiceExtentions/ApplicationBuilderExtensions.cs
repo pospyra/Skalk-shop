@@ -4,7 +4,7 @@ namespace SkalkWebApi.ServiceExtentions
 {
     public static class ApplicationBuilderExtensions
     {
-        public static void UseSkalkCoreontext(this IApplicationBuilder app)
+        public static void UseSkalkCoreContext(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.GetService<IServiceScopeFactory>()?.CreateScope();
             using var context = scope?.ServiceProvider.GetRequiredService<SkalkContext>();

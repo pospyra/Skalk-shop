@@ -21,9 +21,9 @@ namespace Skalk.BLL.Services
 
         public SupplyClient()
         {
-            clientId = "6edc75af-6da6-40b7-8e7a-b73ea6923bf5"
+            clientId = Environment.GetEnvironmentVariable("NEXAR_CLIENT_ID")
                ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_ID'");
-            clientSecret = "MgBzv4zhcO0Ucw_J4zQI-tDpiy9E7ZPrK4iK"
+            clientSecret = Environment.GetEnvironmentVariable("NEXAR_CLIENT_SECRET")
                 ?? throw new InvalidOperationException("Please set environment variable 'NEXAR_CLIENT_SECRET'");
 
             httpClient = new HttpClient()
@@ -37,7 +37,6 @@ namespace Skalk.BLL.Services
             await EnsureValidTokenAsync();
             string requestString = JsonConvert.SerializeObject(request);
 
-            // Создаем HttpRequestMessage вручную, добавляем заголовок "User-Agent"
             var httpRequestMessage = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
